@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Balanced Scorecard - Agroomy</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Balanced Scorecard - Agroomy</h1>
+      <p>Monitoreo de indicadores clave de desempeño</p>
+    </header>
+    
+    <div class="dashboard-header">
+      <h2>Dashboard</h2>
+      <div class="period-selector">
+        <button class="period-btn active" data-period="1">Periodo 1</button>
+        <button class="period-btn" data-period="2">Periodo 2</button>
+        <button class="period-btn" data-period="3">Periodo 3</button>
+        <button class="period-btn" data-period="4">Periodo 4</button>
+        <button class="add-period-btn" id="addPeriodBtn">+ Agregar Periodo</button>
+      </div>
+    </div>
+    
+    <div class="summary-cards">
+      <div class="summary-card">
+        <div class="summary-title">Indicadores en meta</div>
+        <div class="summary-value" id="indicadores-meta">0/0</div>
+        <div class="trend trend-up">
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title">Margen de beneficio</div>
+        <div class="summary-value" id="margen-beneficio">-</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title">Índice NPS</div>
+        <div class="summary-value" id="indice-nps">-</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title">Tiempo promedio entrega</div>
+        <div class="summary-value" id="tiempo-entrega">-</div>
+      </div>
+    </div>
+    
+    <div class="charts-container">
+      <div class="chart-card">
+        <div class="chart-title">Metas por Perspectiva</div>
+        <canvas id="perspectiveBarChart"></canvas>
+    </div>
+      <div class="chart-card">
+        <div class="chart-title">Tendencia de indicadores clave</div>
+        <canvas id="trendChart"></canvas>
+      </div>
+    </div>
+    
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--success);"></div>
+        <span>Meta cumplida</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--warning);"></div>
+        <span>Precaución</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color" style="background-color: var(--danger);"></div>
+        <span>Peligro</span>
+      </div>
+    </div>
+    
+    <button id="addIndicatorBtn" style="margin-bottom:1rem; padding:0.5rem 1rem; border:none; border-radius:4px; background-color: var(--primary); color:#fff; cursor:pointer;">+ Agregar Indicador</button>
+    
+    <table class="bsc-table">
+      <thead>
+        <tr>
+          <th>Perspectiva</th>
+          <th>Indicador</th>
+          <th>Meta</th>
+          <th>Resultado</th>
+          <th>Estado</th>
+          <th>Acciones Prioritarias</th>
+          <th>Opciones</th>
+        </tr>
+      </thead>
+      <tbody id="indicatorTableBody">
+        <!-- Se genera dinámicamente -->
+      </tbody>
+    </table>
+    
+    <div class="footer">
+      <p>© 2025 Empresa de Software Sustentable Agroomy - Balanced Scorecard</p>
+    </div>
+  </div>
+  
+  <!-- Modal Agregar Indicador -->
+  <div class="modal" id="addIndicatorModal">
+    <div class="modal-content">
+      <button class="modal-close" data-close="addIndicatorModal">&times;</button>
+      <div class="modal-header">
+        <h3>Agregar Indicador</h3>
+      </div>
+      <form id="addIndicatorForm">
+        <label for="addPerspective">Perspectiva</label>
+        <select id="addPerspective" required>
+          <option value="finanzas">Finanzas</option>
+          <option value="cliente">Cliente</option>
+          <option value="procesos">Procesos</option>
+          <option value="crecimiento">Crecimiento</option>
+        </select>
+        <label for="addIndicatorName">Indicador</label>
+        <input type="text" id="addIndicatorName" required>
+        <label for="addMeta">Valor Meta</label>
+        <input type="number" id="addMeta" required step="any">
+        <label for="addPrecaucion">Valor Precaución</label>
+        <input type="number" id="addPrecaucion" required step="any">
+        <label for="addPeligro">Valor Peligro</label>
+        <input type="number" id="addPeligro" required step="any">
+        <label for="addResultado">Resultado</label>
+        <input type="number" id="addResultado" required step="any">
+        <label for="addAction">Acción</label>
+        <input type="text" id="addAction" required>
+        <button type="submit">Guardar</button>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Modal Editar Indicador -->
+  <div class="modal" id="editIndicatorModal">
+    <div class="modal-content">
+      <button class="modal-close" data-close="editIndicatorModal">&times;</button>
+      <div class="modal-header">
+        <h3>Editar Indicador</h3>
+      </div>
+      <form id="editIndicatorForm">
+        <input type="hidden" id="editIndex">
+        <label for="editPerspective">Perspectiva</label>
+        <select id="editPerspective" required>
+          <option value="finanzas">Finanzas</option>
+          <option value="cliente">Cliente</option>
+          <option value="procesos">Procesos</option>
+          <option value="crecimiento">Crecimiento</option>
+        </select>
+        <label for="editIndicatorName">Indicador</label>
+        <input type="text" id="editIndicatorName" required>
+        <label for="editMeta">Valor Meta</label>
+        <input type="number" id="editMeta" required step="any">
+        <label for="editPrecaucion">Valor Precaución</label>
+        <input type="number" id="editPrecaucion" required step="any">
+        <label for="editPeligro">Valor Peligro</label>
+        <input type="number" id="editPeligro" required step="any">
+        <label for="editResultado">Resultado</label>
+        <input type="number" id="editResultado" required step="any">
+        <label for="editAction">Acción</label>
+        <input type="text" id="editAction" required>
+        <button type="submit">Guardar Cambios</button>
+      </form>
+    </div>
+  </div>
+  
+  <!-- Modal Agregar Periodo -->
+  <div class="modal" id="addPeriodModal">
+    <div class="modal-content">
+      <button class="modal-close" data-close="addPeriodModal">&times;</button>
+      <div class="modal-header">
+        <h3>Agregar Periodo</h3>
+      </div>
+      <form id="addPeriodForm">
+        <label for="newPeriodName">Nombre del Periodo</label>
+        <input type="text" id="newPeriodName" required placeholder="Ej. Periodo 5">
+        <button type="submit">Agregar Periodo</button>
+      </form>
+    </div>
+  </div>
+  <script src="/main.js"></script>
+</body>
+</html>
